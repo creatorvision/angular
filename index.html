@@ -1,0 +1,87 @@
+<!Doctype html>
+<html data-ng-app="demoApp">
+    <head>
+        <title>Using AngularJS Directives and Data Binding</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.5/angular.min.js"></script>
+        <script src="https://code.angularjs.org/1.2.0rc1/angular-route.min.js"></script>
+    </head>
+    <body >
+        <div>
+           <!-- Placeholder for views -->
+           <div data-ng-view=""></div>
+            <!-- Trying out template caching -->
+            <!--<script type="text/ng-template" id="templateId.html">
+                <p> This is the content of the tmeplate </p>
+            </script>-->
+        </div>
+
+     <script>
+        var demoApp = angular.module('demoApp',['ngRoute']);
+        demoApp.controller('SimpleController',function ($scope){
+                console.log("SimpleController loaded");
+                $scope.customers=[
+                    {name:'John smith',city:'phoenix'},
+                    {name:'Shivang Gupta',city:'Pune'},
+                    {name:'Shaifali Gupta',city:'Jaipur'},
+                    {name:'Gaurav Jain',city:'Singapore'}
+                ];
+                $scope.addCustomer = function(){
+                    $scope.customers.push(
+                        {
+                            name: $scope.newCustomer.name,
+                            city: $scope.newCustomer.city
+                       });
+                };
+            });
+
+        // demoFunction in javascript for understanding the provider, factory and service.
+        var demoFunction =function(){
+            var website = "TechCrunch";
+            this.$get=function(){
+                var website = "Google";
+                return "This is provided by Provider:  "+ website;
+            };
+            return "This is provided by the factory:  "+ website;
+        }
+        
+        demoApp.service("ServiceDemo",demoFunction);
+        demoApp.factory("FactoryDemo",demoFunction);
+        demoApp.provider("ProviderDemo",demoFunction);
+        demoApp.controller("MyController",function($scope,ServiceDemo,FactoryDemo,ProviderDemo){
+                console.log("MyController loaded");
+                init(); // For initializing all the components together at one place.
+                function init(){
+                    $scope.serviceResult="This is from Service: "+ ServiceDemo;
+                    $scope.factoryResult="This is from factory: "+ FactoryDemo;
+                    $scope.providerResult="This is from provider: "+ ProviderDemo;
+                }
+        });
+
+
+        //Disable Caching : To stop template getting cached.
+        demoApp.run(function($rootScope, $templateCache) {
+            $rootScope.$on('$viewContentLoaded', function() {
+                $templateCache.removeAll();
+            });
+        });  
+        // demoApp.run(function($templateCache){
+        //     $templateCache.put('templateId.html','This is cached compenonet');
+        //     console.log($templateCache.get('templateId.html'));
+        // });
+        demoApp.config(function($routeProvider){
+            $routeProvider
+                .when('/',
+                {
+                    controller:'SimpleController',
+                    templateUrl:'Partials/View1.html'
+                })
+                .when('/view2', 
+                {
+                    controller:'SimpleController',
+                    templateUrl:'Partials/View2.html'
+                })
+                .otherwise({ redirectTo:'/'});
+        });
+        </script>
+    </body>
+</html>
